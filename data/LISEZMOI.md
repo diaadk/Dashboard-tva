@@ -3,22 +3,22 @@
 Les résultats de la campagne de vérification VIES du 3 novembre 2026, sur les 10 000 lignes du
 référentiel clients (le même référentiel que celui des J1-J2). Une ligne par ligne du référentiel.
 
-| Colonne | Contenu |
-|---|---|
-| `id` | numéro de la ligne dans le référentiel (1 à 10 000) |
-| `raison_sociale` | nom du client |
-| `numero_saisi` | le numéro tel qu'il a été saisi |
-| `numero_normalise` | le numéro nettoyé (majuscules, sans espaces ni tirets) |
-| `pays` | code pays lu au début du numéro, vide s'il ne correspond à aucun des dix pays couverts |
-| `pays_declare` | pays saisi dans le CRM (on y trouve aussi des codes faux : `ZZ`, `QQ`, `XX`, et le Royaume-Uni `GB`/`UK`, qui n'est plus dans l'UE) |
-| `source_saisie` | canal d'origine du client (voir ci-dessous) |
-| `date_saisie` | date d'entrée du client dans le référentiel |
-| `etape_rejet` | vide si le numéro a été envoyé à VIES ; sinon `absent`, `doublon` ou `structure` |
-| `motif` | explication du rejet, en français |
-| `statut` | `valide`, `invalide` ou `non_tranche` |
-| `erreur_vies` | pour un non tranché, la raison donnée par VIES (`TIMEOUT`, `MS_UNAVAILABLE`, `MS_MAX_CONCURRENT_REQ`) |
-| `date_verification` | date et heure de la réponse VIES, vide si le numéro n'a pas été envoyé |
-| `temps_reponse_ms` | temps de réponse de VIES en millisecondes, vide si le numéro n'a pas été envoyé |
+| Colonne             | Contenu                                                                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                | numéro de la ligne dans le référentiel (1 à 10 000)                                                                                 |
+| `raison_sociale`    | nom du client                                                                                                                       |
+| `numero_saisi`      | le numéro tel qu'il a été saisi                                                                                                     |
+| `numero_normalise`  | le numéro nettoyé (majuscules, sans espaces ni tirets)                                                                              |
+| `pays`              | code pays lu au début du numéro, vide s'il ne correspond à aucun des dix pays couverts                                              |
+| `pays_declare`      | pays saisi dans le CRM (on y trouve aussi des codes faux : `ZZ`, `QQ`, `XX`, et le Royaume-Uni `GB`/`UK`, qui n'est plus dans l'UE) |
+| `source_saisie`     | canal d'origine du client (voir ci-dessous)                                                                                         |
+| `date_saisie`       | date d'entrée du client dans le référentiel                                                                                         |
+| `etape_rejet`       | vide si le numéro a été envoyé à VIES ; sinon `absent`, `doublon` ou `structure`                                                    |
+| `motif`             | explication du rejet, en français                                                                                                   |
+| `statut`            | `valide`, `invalide` ou `non_tranche`                                                                                               |
+| `erreur_vies`       | pour un non tranché, la raison donnée par VIES (`TIMEOUT`, `MS_UNAVAILABLE`, `MS_MAX_CONCURRENT_REQ`)                               |
+| `date_verification` | date et heure de la réponse VIES, vide si le numéro n'a pas été envoyé                                                              |
+| `temps_reponse_ms`  | temps de réponse de VIES en millisecondes, vide si le numéro n'a pas été envoyé                                                     |
 
 ## Les canaux de saisie
 
@@ -37,12 +37,12 @@ référentiel clients (le même référentiel que celui des J1-J2). Une ligne pa
 
 ## Les chiffres que votre application doit retrouver (sans filtre)
 
-| | Numéros | Part |
-|---|---:|---:|
-| Total | 10 000 | 100 % |
-| Valides | 5 149 | 51,5 % |
-| Invalides | 4 638 | 46,4 % |
-| Non tranchés | 213 | 2,1 % |
+|              | Numéros |   Part |
+| ------------ | ------: | -----: |
+| Total        |  10 000 |  100 % |
+| Valides      |   5 149 | 51,5 % |
+| Invalides    |   4 638 | 46,4 % |
+| Non tranchés |     213 |  2,1 % |
 
 Entonnoir : 10 000 numéros → 9 778 après retrait des absents → 9 302 après retrait des doublons
 → **5 802 envoyés à VIES** après retrait des numéros mal formés.
