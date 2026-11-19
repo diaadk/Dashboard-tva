@@ -83,87 +83,118 @@ st.write("Le tableau de bord sert à suivre la qualité des numéros de TVA des 
 derniere = df["date_verification"].max()
 st.info(f"Dernière vérification VIES : {derniere:%d/%m/%Y à %H:%M}. Règle : un numéro non tranché ne doit pas être facturé hors taxe tant qu'il n'a pas été revérifié.")
 
+onglets = st.tabs(["Accueil", "Statistiques", "Données"])
 # =============================================================================
 # ÉTAPE 1 — Les quatre chiffres clés
 # =============================================================================
-total = len(selection)
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Numéros", total)
-# TODO CHIFFRES (étape 1) : dans col2, col3 et col4, le nombre de valides, d'invalides et de non tranchés,
+with onglets[0]:
+    total = len(selection)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Numéros", total)
+#   TODO CHIFFRES (étape 1) : dans col2, col3 et col4, le nombre de valides, d'invalides et de non tranchés,
 #          chacun avec son pourcentage du total.
-valides = (selection["statut"] == "valide").sum()
-invalides = (selection["statut"] == 'invalide').sum()
-non_tranche = (selection["statut"] == 'non_tranche').sum()
-col2.metric("Valides", valides, f"{valides / total:.1%} du total", delta_color="off")
-col3.metric("Invalides", invalides, f"{invalides / total:.1%} du total", delta_color="off")
-col4.metric("Non tranchés", non_tranche, f"{non_tranche / total:.1%} du total", delta_color="off")
+    valides = (selection["statut"] == "valide").sum()
+    invalides = (selection["statut"] == 'invalide').sum()
+    non_tranche = (selection["statut"] == 'non_tranche').sum()
+    col2.metric("Valides", valides, f"{valides / total:.1%} du total", delta_color="off")
+    col3.metric("Invalides", invalides, f"{invalides / total:.1%} du total", delta_color="off")
+    col4.metric("Non tranchés", non_tranche, f"{non_tranche / total:.1%} du total", delta_color="off")
 
 # =============================================================================
 # ÉTAPE 2 — L'entonnoir
 # =============================================================================
-st.subheader("Combien de numéros ont pu être envoyés à VIES ?")
-# TODO ENTONNOIR (étape 2) : compter, étape par étape, les numéros qui restent après le retrait des absents,
+with onglets[1]:
+    st.subheader("Combien de numéros ont pu être envoyés à VIES ?")
+#   TODO ENTONNOIR (étape 2) : compter, étape par étape, les numéros qui restent après le retrait des absents,
 #          des doublons, puis des numéros mal formés, et les afficher avec px.funnel.
-absents = (selection["etape_rejet"] == "absent").sum()
-doublons = (selection["etape_rejet"] == "doublon").sum()
-structure = (selection["etape_rejet"] == "structure").sum()
-entonnoir = pd.DataFrame({
-    "étape" : ["Référentiel", "Sans les absents", "Sans les doublons", "Envoyés à VIES"],
-    "numéros" : [total,
+    absents = (selection["etape_rejet"] == "absent").sum()
+    doublons = (selection["etape_rejet"] == "doublon").sum()
+    structure = (selection["etape_rejet"] == "structure").sum()
+    entonnoir = pd.DataFrame({
+        "étape" : ["Référentiel", "Sans les absents", "Sans les doublons", "Envoyés à VIES"],
+        "numéros" : [total,
                  total - absents,
                  total - absents - doublons,
                  total - absents -doublons - structure],
 })
-fig = px.funnel(entonnoir, x="numéros", y="étape",
+    fig = px.funnel(entonnoir, x="numéros", y="étape",
                 title ="Du réferentiel aux numéros envoyés à VIES")
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
 
 # =============================================================================
 # ÉTAPE 4 — D'où viennent les erreurs ?
 # =============================================================================
-st.subheader("D'où viennent les erreurs ?")
-# TODO GRAPHIQUES (étape 4) : avec taux_invalides(selection, "source_saisie"), puis "pays_declare",
+with onglets[1]:
+    st.subheader("D'où viennent les erreurs ?")
+#   TODO GRAPHIQUES (étape 4) : avec taux_invalides(selection, "source_saisie"), puis "pays_declare",
 #          deux graphiques en barres horizontales avec la valeur écrite sur chaque barre,
 #          puis une phrase (st.caption) qui explique quel canal sort du lot.
-taux = taux_invalides(selection, "source_saisie")
-fig = px.bar(taux, x="taux d'erreur (%)", y="source_saisie", orientation="h",
+    taux = taux_invalides(selection, "source_saisie")
+    fig = px.bar(taux, x="taux d'erreur (%)", y="source_saisie", orientation="h",
              text="taux d'erreur (%)", title="Part de numéros invalides par canal de saisie")
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
 
-taux_pays = taux_invalides(selection, "pays_declare")
-fig = px.bar(taux_pays, x="taux d'erreur (%)", y="pays_declare", orientation="h",
+    taux_pays = taux_invalides(selection, "pays_declare")
+    fig = px.bar(taux_pays, x="taux d'erreur (%)", y="pays_declare", orientation="h",
              text="taux d'erreur (%)", title="Part de numéros invalides par pays déclaré")
-st.plotly_chart(fig)
-st.caption("reprise_erp présente davantage d'erreurs parce que les données proviennent d'un ancien logiciel et peuvent être obsolètes ou incorrectes.")
+    st.plotly_chart(fig)
+    st.caption("reprise_erp présente davantage d'erreurs parce que les données proviennent d'un ancien logiciel et peuvent être obsolètes ou incorrectes.")
 
 
 # =============================================================================
 # ÉTAPE 5 — Les numéros à traiter
 # =============================================================================
-st.subheader("Numéros à traiter")
-# TODO A_TRAITER (étape 5) : la liste des invalides et des non tranchés, avec une colonne « action »,
+with onglets[2]:
+    st.subheader("Numéros à traiter")
+#   TODO A_TRAITER (étape 5) : la liste des invalides et des non tranchés, avec une colonne « action »,
 #          et un bouton pour la télécharger.
 # 1. Garder les lignes dont le statut n'est pas "valide" (!= veut dire « différent de »)
-a_traiter = selection[selection["statut"] != "valide"].copy()
+    a_traiter = selection[selection["statut"] != "valide"].copy()
 
 # 2. Ajouter une colonne "action" : .map remplace chaque statut par le texte associé
-a_traiter["action"] = a_traiter["statut"].map({
+    a_traiter["action"] = a_traiter["statut"].map({
     "invalide": "Demander un nouveau numéro au client",
     "non_tranche": "Revérifier sur VIES avant la prochaine facture",
 })
 
 # 3. Afficher le nombre et le tableau, avec les colonnes utiles pour la comptabilité
-colonnes = ["raison_sociale", "numero_saisi", "pays_declare", "statut", "motif", "action"]
-st.write(f"{len(a_traiter)} numéros demandent une action.")
-st.dataframe(a_traiter[colonnes], hide_index=True)
+    colonnes = ["raison_sociale", "numero_saisi", "pays_declare", "statut", "motif", "action"]
+    st.write(f"{len(a_traiter)} numéros demandent une action.")
+    st.dataframe(a_traiter[colonnes], hide_index=True)
 
 # 4. Le bouton de téléchargement
-st.download_button(
+    st.download_button(
     "Télécharger la liste",
     a_traiter[colonnes].to_csv(index=False, sep=";").encode("utf-8-sig"),
     file_name="numeros_a_traiter.csv",
 )
 
 # Déjà écrit : les données brutes, cachées par défaut.
-with st.expander("Voir toutes les données"):
-    st.dataframe(selection, hide_index=True)
+    with st.expander("Voir toutes les données"):
+        st.dataframe(selection, hide_index=True)
+
+#BONUS 3
+with onglets[1]:
+    mediane = selection["temps_reponse_ms"].median()
+#fig = px.histogram(selection, x="temps_reponse_ms",title="Temps de réponse median")
+#fig.add_vline(x=mediane)
+#st.plotly_chart(fig)
+
+    fig = px.bar(selection.groupby("pays_declare")["temps_reponse_ms"].median().reset_index(), x="temps_reponse_ms",y= "pays_declare",title="Temps de réponse median")
+    fig.add_vline(x=mediane)
+    st.plotly_chart(fig)
+
+#BONUS 2
+    st.subheader("Numéros non tranchés par pays")
+
+    non_tranches_pays = selection[selection["statut"] == "non_tranche"]
+    nombre_par_pays = non_tranches_pays.groupby("pays_declare").size().reset_index(name="nombre")
+    fig = px.bar(
+        nombre_par_pays,
+        x="nombre",
+        y="pays_declare",
+        orientation="h",
+        title="Nombre de numéros non tranchés par pays"
+    )
+    st.plotly_chart(fig)
+
